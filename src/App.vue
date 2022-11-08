@@ -1,12 +1,12 @@
 <template>
   <div id="app">
     <!-- Two way bind query to this input field -->
-    <input id="search" type="text">
+    <input id="search" type="text" v-model="query">
     <!--
       Edit app-contacts component to receive
       contacts property through search results
     -->
-    <app-contacts></app-contacts>
+    <app-contacts :contacts="search"></app-contacts>
   </div>
 </template>
 
@@ -16,7 +16,7 @@ import Contacts from './components/Contacts'
  * To import contact from contacts.json
  * uncomment the following line
  */
-// import jsonContacts from './assets/contacts.json'
+import jsonContacts from './assets/contacts.json'
 
 export default {
   name: 'App',
@@ -28,6 +28,8 @@ export default {
      * Create the necessary data variable here
      */
     return {
+      query: '',
+      Contacts: jsonContacts
     }
   },
   computed: {
@@ -39,7 +41,35 @@ export default {
        * and return an array with the results
        */
       get: function () {
-        return ''
+        var query = this.query
+        if (query && query.length > 0) {
+          var filterContract = []
+          this.Contacts.forEach(item => {
+            var isBingo = false
+            if (item.firstname.includes(query) ||
+              item.lastname.includes(query)
+            ) {
+              isBingo = true
+            } else {
+              item.email.forEach(_email => {
+                if (_email.includes(query)) {
+                  isBingo = true
+                }
+              })
+              item.phoneNumber.forEach(_phoneNumber => {
+                if (_phoneNumber.includes(query)) {
+                  isBingo = true
+                }
+              })
+            }
+            if (isBingo) {
+              filterContract.push(item)
+            }
+          })
+          return filterContract
+        } else {
+          return this.Contacts
+        }
       }
     }
   }
